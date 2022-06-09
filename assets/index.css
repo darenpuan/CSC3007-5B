@@ -1,0 +1,16 @@
+.tooltip {
+  position: absolute;
+  background: #fff;
+}
+
+#countries path {
+  fill: #777;
+  stroke: #fff;
+  stroke-width: 0.5;
+}
+
+#countries path:hover {
+  fill: aliceblue;
+  stroke: blue;
+  stroke-width: 1;
+}

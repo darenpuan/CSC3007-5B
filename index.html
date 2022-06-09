@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="assets/index.css" />
+  </head>
+  <body>
+    <svg viewBox="0 0 1000 600">
+      <defs>
+        <linearGradient id="oceanGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop
+            offset="0%"
+            style="stop-color: rgb(0, 0, 27); stop-opacity: 1"
+          />
+          <stop
+            offset="100%"
+            style="stop-color: rgb(51, 122, 183); stop-opacity: 1"
+          />
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="tooltip"></div>
+    <script>
+      let svg = d3.select("svg");
+
+      // Map and projection
+      let projection = d3.geoEquirectangular();
+      //   let projection = d3.geoOrthographic();
+
+      //Zoom in to country
+      // let projection = d3
+      //   .geoEquirectangular()
+      //   .center([103.8198, 1.3521]) // London's longitude / latitude;
+      //   .scale(500);
+
+      let geopath = d3.geoPath().projection(projection);
+
+      // Load GeoJSON data
+      d3.json(
+        "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"
+      ).then((data) => {
+
+              let graticule = d3.geoGraticule().step([10, 10]);
+
+        svg
+          .append("g")
+          .attr("id", "graticules")
+          .selectAll("path")
+          .data([graticule()])
+          .enter()
+          .append("path")
+          .attr("d", (d) => geopath(d))
+          .attr("fill", "none")
+          .attr("stroke", "#aaa")
+          .attr("stroke-width", 0.2);
+        // Gradient
+        svg
+          .append("path")
+          .datum({ type: "Sphere" })
+          .attr("id", "ocean")
+          .attr("d", geopath)
+          .attr("fill", "lightBlue")
+          .attr("fill", "url(#oceanGradient)");
+        // Draw the map
+
+        svg
+          .append("g")
+          .attr("id", "countries")
+          .selectAll("path")
+          .data(data.features)
+          .enter()
+          .append("path")
+          .attr("d", (d) => geopath(d))
+          .on("mouseover", (event, d) => {
+            d3.select(".tooltip")
+              .text(d.properties.name)
+              .style("left", event.pageX + "px")
+              .style("top", event.pageY + "px");
+          })
+          .on("mouseout", (event, d) => {
+            d3.select(".tooltip").text("");
+          });
+
+        let singapore = [103.851959, 1.29027]; // longitude = x, latitude = y
+
+        svg
+          .append("circle")
+          .attr("cx", projection(singapore)[0])
+          .attr("cy", projection(singapore)[1])
+          .attr("r", 5)
+          .attr("fill", "yellow");
+      });
+    </script>
+  </body>
+</html>
